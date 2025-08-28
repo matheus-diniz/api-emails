@@ -23,3 +23,5 @@ EXPOSE 8080
 
 # Inicia o backend
 CMD ["npm", "start"]
+
+import App from "./App";
