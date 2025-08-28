@@ -3,17 +3,29 @@ import session from "express-session";
 import { google } from "googleapis";
 import dotenv from "dotenv";
 import cors from "cors";
+import path from "path";
+import { fileURLToPath } from "url";
 
 dotenv.config();
 
+// recria __dirname para ESModules
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
 const app = express();
-app.use(cors({ origin: "http://localhost:5173", credentials: true }));
+
+// Habilita CORS (ajuste o origin conforme necessário)
+app.use(cors({ origin: process.env.CORS_ORIGIN || "*", credentials: true }));
+
+// Servir arquivos do frontend compilado (React build)
+app.use(express.static(path.join(__dirname, "public")));
+
 app.use(
   session({
-    secret: process.env.SESSION_SECRET,
+    secret: process.env.SESSION_SECRET || "default_secret",
     resave: false,
     saveUninitialized: true,
-    cookie: { secure: false } // para ambiente local sem HTTPS
+    cookie: { secure: false }, // em prod no Cloud Run você pode trocar para true (com HTTPS)
   })
 );
 
@@ -44,7 +56,6 @@ app.get("/auth/callback", async (req, res) => {
     const { tokens } = await oAuth2Client.getToken(code);
     console.log("Tokens recebidos:", tokens);
 
-    // Verifique se req.session existe
     if (!req.session) {
       console.error("req.session não inicializada!");
       return res.status(500).send("Erro na sessão");
@@ -53,13 +64,10 @@ app.get("/auth/callback", async (req, res) => {
     req.session.tokens = tokens;
     res.send("Autenticado com sucesso!");
   } catch (err) {
-    // Mostra todos os detalhes do erro
     console.error("Erro detalhado OAuth:", JSON.stringify(err.response?.data || err, null, 2));
     res.status(500).send("Erro na autenticação Google");
   }
 });
-
-
 
 // Lista emails
 app.get("/emails", async (req, res) => {
@@ -96,4 +104,11 @@ app.get("/emails", async (req, res) => {
   }
 });
 
-app.listen(3000, () => console.log("🚀 Backend rodando em http://localhost:3000"));
+// fallback para SPA (React Router)
+app.get("*", (req, res) => {
+  res.sendFile(path.join(__dirname, "public", "index.html"));
+});
+
+// Cloud Run define a porta em process.env.PORT
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => console.log(`🚀 Backend rodando na porta ${PORT}`));

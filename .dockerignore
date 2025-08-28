@@ -1,0 +1,37 @@
+# Node modules locais (não precisa mandar, o Docker instala)
+**/node_modules
+**/npm-debug.log
+**/yarn-error.log
+
+# Build do React (será recriado no Docker build)
+frontend/build
+frontend/dist
+
+# Build/transpiled outputs
+dist
+build
+
+# Dependências cacheadas
+*.tgz
+
+# Logs
+*.log
+logs
+*.out
+
+# Ambiente local
+.env
+.env.local
+.env.development
+.env.test
+.env.production
+
+# Arquivos de sistema / IDE
+.DS_Store
+.vscode
+.idea
+*.swp
+
+# Git
+.git
+.gitignore
