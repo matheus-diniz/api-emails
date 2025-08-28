@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import './App.css'; // Importando o novo arquivo de estilos
+import './app.css'; // Importando o novo arquivo de estilos
 
 function App() {
   const [emails, setEmails] = useState([]);
