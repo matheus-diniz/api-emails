@@ -22,7 +22,8 @@
 
 FROM node
 
-WORKDIR backend
-CMD [ "npm", "install" ]
-CMD [ "npm", "start" ]
+# Inicia o backend
+WORKDIR /backend
+RUN npm install
+RUN npm start
 
