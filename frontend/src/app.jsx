@@ -11,9 +11,9 @@ function App() {
     try {
       setLoading(true);
       setError(""); // Limpa erros anteriores ao recarregar
-      const res = await fetch("http://localhost:3000/emails", { credentials: "include" });
+      const res = await fetch("https://email-check-api-99587965512.us-central1.run.app/emails", { credentials: "include" });
       if (res.status === 401) {
-        window.location.href = "http://localhost:3000/auth";
+        window.location.href = "https://email-check-api-99587965512.us-central1.run.app/auth";
         return;
       }
       if (!res.ok) {
