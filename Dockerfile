@@ -19,32 +19,24 @@
 
 # # Inicia o backend
 # CMD ["npm", "start"]
-
-# Usar imagem Node oficial compatível com Cloud Run
-FROM node:18-slim
-
-# Definir diretório de trabalho
-WORKDIR /app
-
-# Copiar package.json e package-lock.json primeiro (melhora cache)
-COPY backend/package*.json ./
-
-# Instalar dependências
+# --- Stage 1: Build Frontend ---
+FROM node:18-slim AS build-frontend
+WORKDIR /app/frontend
+COPY frontend/package*.json ./
 RUN npm install
-
-# Copiar o restante do código
+COPY frontend/ ./
+RUN npm run build
+# --- Stage 2: Build Backend and Copy Frontend Build ---
+FROM node:18-slim
+WORKDIR /app
+# Install backend dependencies
+COPY backend/package*.json ./
+RUN npm install
+# Copy backend source
 COPY backend/ ./
-
-# (Opcional) copiar .env se quiser buildar junto 
-# mas o recomendado no Google Cloud é usar "Config Vars/Secrets"
-# COPY backend/.env .env.local
-
-# Expor a porta usada pelo app
+# Copy frontend build into backend public folder
+COPY --from=build-frontend /app/frontend/dist ./public
+# Expose the port Cloud Run expects
 EXPOSE 8080
-
-# Definir variável de ambiente padrão do GCP
 ENV PORT=8080
-
-# Rodar a aplicação
 CMD ["npm", "start"]
-
